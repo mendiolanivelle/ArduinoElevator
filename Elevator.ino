@@ -1,9 +1,15 @@
+#include <Stepper.h> 
+
+int numberofstep = 64*32; 
+Stepper motor(numberofstep,8, 10, 9, 11);
+
 int Floor = 1;
 int CurrentFloor = 1;
 
 void setup() 
 {
   Serial.begin(9600);
+  motor.setSpeed(10);
 }
 
 void loop() 
@@ -23,20 +29,24 @@ void loop()
 void MoveElevator(int p_TargetFloor)
 {
   int Direction;
+  int MotorStep;
   if( p_TargetFloor > Floor )
   {
     Serial.print("The elevator is on it's way up...");
     Direction = 1;
+    MotorStep = 2200;
   }
   else
   {
     Serial.print("The elevator is on it's way down...");
     Direction = -1;
+    MotorStep = -2200;
   }
 
   while(p_TargetFloor != Floor)
   {
     Floor += Direction;
+    motor.step(MotorStep);
     Serial.print(Floor);
     delay(1000);
   }
