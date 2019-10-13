@@ -1,7 +1,11 @@
+#include <Servo.h>
 #include <Stepper.h> 
 
 int numberofstep = 64*32; 
 Stepper motor(numberofstep,8, 10, 9, 11);
+
+Servo MyServo;
+int ServoPosition = 0;
 
 int Floor = 1;
 int CurrentFloor = 1;
@@ -10,6 +14,7 @@ void setup()
 {
   Serial.begin(9600);
   motor.setSpeed(10);
+  MyServo.attach(4);
 }
 
 void loop() 
@@ -34,13 +39,13 @@ void MoveElevator(int p_TargetFloor)
   {
     Serial.print("The elevator is on it's way up...");
     Direction = 1;
-    MotorStep = 2200;
+    MotorStep = 5200;
   }
   else
   {
     Serial.print("The elevator is on it's way down...");
     Direction = -1;
-    MotorStep = -2200;
+    MotorStep = -5200;
   }
 
   while(p_TargetFloor != Floor)
@@ -51,10 +56,10 @@ void MoveElevator(int p_TargetFloor)
     delay(1000);
   }
   CurrentFloor = p_TargetFloor;
-  Serial.println("");
-  Serial.println("Door is now Open");
+  OpenDoor();
   delay(1000);
-  Serial.println("Door is now close");
+  CloseDoor();
+  delay(1000);
 }
 
 int ConvertFloorToNumber(char Letter)
@@ -80,5 +85,23 @@ int ConvertFloorToNumber(char Letter)
     default:
     
     break;
+  }
+}
+
+void OpenDoor()
+{
+  for (ServoPosition = 0; ServoPosition <= 90; ServoPosition += 1) 
+  {
+      MyServo.write(ServoPosition);
+      delay(25);                       
+    }
+}
+
+void CloseDoor()
+{
+ for (ServoPosition = 90; ServoPosition >= 0; ServoPosition -= 1) 
+ { 
+    MyServo.write(ServoPosition);   
+    delay(25);                       
   }
 }
