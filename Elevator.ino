@@ -1,5 +1,9 @@
+#include <dht.h>
 #include <Servo.h>
 #include <Stepper.h> 
+
+dht DHT;
+#define DHT11_PIN 3
 
 int numberofstep = 64*32; 
 Stepper motor(numberofstep,8, 10, 9, 11);
@@ -19,6 +23,7 @@ void setup()
 
 void loop() 
 {
+  
   if(Serial.available())
   {
     char CharTargetFloor = Serial.read();
@@ -54,6 +59,11 @@ void MoveElevator(int p_TargetFloor)
     motor.step(MotorStep);
     Serial.print(Floor);
     delay(1000);
+    int chk = DHT.read11(DHT11_PIN);
+    Serial.print("Temperature = ");
+    Serial.println(DHT.temperature);
+    Serial.print("Humidity = ");
+    Serial.println(DHT.humidity);
   }
   CurrentFloor = p_TargetFloor;
   OpenDoor();
@@ -90,7 +100,7 @@ int ConvertFloorToNumber(char Letter)
 
 void OpenDoor()
 {
-  for (ServoPosition = 0; ServoPosition <= 90; ServoPosition += 1) 
+  for (ServoPosition = 0; ServoPosition <= 85; ServoPosition += 1) 
   {
       MyServo.write(ServoPosition);
       delay(25);                       
@@ -99,7 +109,7 @@ void OpenDoor()
 
 void CloseDoor()
 {
- for (ServoPosition = 90; ServoPosition >= 0; ServoPosition -= 1) 
+ for (ServoPosition = 85; ServoPosition >= 0; ServoPosition -= 1) 
  { 
     MyServo.write(ServoPosition);   
     delay(25);                       
