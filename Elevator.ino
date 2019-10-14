@@ -1,15 +1,18 @@
 #include <dht.h>
 #include <Servo.h>
+#include <SoftwareSerial.h>
 #include <Stepper.h> 
 
 dht DHT;
 #define DHT11_PIN 3
 
-int numberofstep = 64*32; 
-Stepper motor(numberofstep,8, 10, 9, 11);
-
 Servo MyServo;
 int ServoPosition = 0;
+
+SoftwareSerial Arduino(0,1);
+
+int numberofstep = 64*32; 
+Stepper motor(numberofstep,8, 10, 9, 11);
 
 int Floor = 1;
 int CurrentFloor = 1;
@@ -17,13 +20,13 @@ int CurrentFloor = 1;
 void setup() 
 {
   Serial.begin(9600);
+  Arduino.begin(4800);
   motor.setSpeed(10);
   MyServo.attach(4);
 }
 
 void loop() 
 {
-  
   if(Serial.available())
   {
     char CharTargetFloor = Serial.read();
@@ -32,7 +35,6 @@ void loop()
       {
         MoveElevator(TargetFloor);
       }
-
   }
 }
 
