@@ -1,110 +1,191 @@
-#include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h> 
+#include <WiFiClient.h>
+#include <SoftwareSerial.h>
+
+#include <DHT.h>
+#include <Adafruit_Sensor.h>
+
+#define DHTPIN D1
+#define DHTTYPE DHT11 
+
+#include "SH1106Wire.h"
+ 
+//ESP Web Server Library to host a web page
 #include <ESP8266WebServer.h>
-#include <ESP8266HTTPClient.h>
 
-SoftwareSerial Esp(4,0);
+#include <Wire.h>
+ #include "index.h" //Our HTML webpage contents
 
-const char *ssid = "nivellemendiola";  
-const char *password = "otendako2";
+ SH1106Wire display(0x3c, D2, D3);
+//---------------------------------------------------------------
+//Our HTML webpage contents in program memory
+const char* host = "192.168.1.20";
+DHT dht(DHTPIN, DHTTYPE);
+//---------------------------------------------------------------
+//On board LED Connected to GPIO2
+int data = 50;
+int data1 = 51;
+int data2 = 52;
+int data3 = 53;
+int data4 = 54;
+int data5 = 55;
+int data6 = 56;
+int data7 = 57;
+int data8 = 58;
+int data9 = 59;
 
-ESP8266WebServer server(80);
 
 
+  
+ 
+//SSID and Password of your WiFi router
+const char* ssid = "nivellemendiola";
+const char* password = "otendako2";
+ 
+//Declare a global object variable from the ESP8266WebServer class.
+ESP8266WebServer server(80); //Server on port 80
+ 
+//===============================================================
+// This routine is executed when you open its IP in browser
+//===============================================================
+void handleRoot() {
+ Serial.println("You called root page");
+ String sm = MAIN_page; //Read HTML contents
+ server.send(200, "text/html", sm); //Send web page
+}
+ 
+void handleLEDon1() { 
 
-void setup() {
+ Serial.println(data);
+ server.send(200, "text/html", "You Pressed Ground Floor"); //Send web page
+
+
+}
+
+void handleLEDon2() { 
+
+ Serial.println(data1);
+ server.send(200, "text/html", "You Pressed Second Floor Down"); //Send web page
+ 
+
+}
+
+void handleLEDon3() { 
+
+ Serial.println(data2);
+ server.send(200, "text/html", "You Pressed Second Floor Up"); //Send web page
+
+
+}
+
+void handleLEDon4() { 
+
+Serial.println(data3);
+server.send(200, "text/html", "You Pressed Third Floor Down"); //Send web page
+
+}
+
+void handleLEDon5() { 
+
+Serial.println(data4);
+server.send(200, "text/html", "You Pressed Third Floor Up"); //Send web page
+}
+
+ void handleLEDon6() { 
+
+ 
+ Serial.println(data5);
+ server.send(200, "text/html", "You Pressed Forth Floor"); //Send web page
+
+}
+
+void handleLEDon7() { 
+
+ Serial.println(data6);
+ server.send(200, "text/html", "You Pressed First Floor"); //Send web page
+  
+
+}
+
+void handleLEDon8() { 
+
+Serial.println(data7);
+server.send(200, "text/html", "You Pressed Second Floor"); //Send web page
+
+}
+
+void handleLEDon9() { 
+
+Serial.println(data8);
+server.send(200, "text/html", "You Pressed Third Floor"); //Send web page
+ 
+}
+
+void handleLEDon10() { 
+
+Serial.println(data9);
+server.send(200, "text/html", "You Pressed Forth Floor"); //Send web page
+ 
+}
+
+//==============================================================
+//                  SETUP
+//==============================================================
+void setup(){
   Serial.begin(115200);
-  Esp.begin(9600);
+ 
+   display.init();
 
-
-  WiFi.mode(WIFI_OFF);        //Prevents reconnection issue (taking too long to connect)
-  delay(1000);
-  WiFi.mode(WIFI_STA);        //This line hides the viewing of ESP as wifi hotspot
+  display.flipScreenVertically();
+  display.setTextAlignment(TEXT_ALIGN_CENTER);
+  display.setFont(ArialMT_Plain_16);
+  display.drawString(64, 0, "IOT based");
+  display.drawString(64, 20, "Elevator");
+  display.display();
+  delay(5000);
+  display.clear();
   
   WiFi.begin(ssid, password);     //Connect to your WiFi router
+  Serial.println("");
+ 
+  //Onboard LED port Direction output
+  
+  
   // Wait for connection
+  Serial.print("Connecting");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     
+    Serial.print(".");
   }
-  server.on("/", handle_OnConnect);
-  server.onNotFound(handle_NotFound);
-  server.on("/4floor", handle_4floor);
-  server.on("/3floor", handle_3floor);
-  server.on("/2floor", handle_2floor);
-  server.on("/1floor", handle_1floor);
-  server.begin();
+ 
+  //If connection successful show IP address in s monitor
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());  //IP address assigned to your ESP
+ 
+  server.on("/", handleRoot);      //Which routine to handle at root location. This is display page
+  server.on("/gpio/10", handleLEDon1); //as Per  <a href="ledOn">, Subroutine to be called
+  server.on("/gpio/11", handleLEDon2); //as Per  <a href="ledOn">, Subroutine to be called
+  server.on("/gpio/12", handleLEDon3); //as Per  <a href="ledOn">, Subroutine to be called
+  server.on("/gpio/13", handleLEDon4); //as Per  <a href="ledOn">, Subroutine to be called
+  server.on("/gpio/14", handleLEDon5); //as Per  <a href="ledOn">, Subroutine to be called
+  server.on("/gpio/15", handleLEDon6); //as Per  <a href="ledOn">, Subroutine to be called
+  server.on("/gpio/16", handleLEDon7); //as Per  <a href="ledOn">, Subroutine to be called
+  server.on("/gpio/17", handleLEDon8); //as Per  <a href="ledOn">, Subroutine to be called
+  server.on("/gpio/18", handleLEDon9); //as Per  <a href="ledOn">, Subroutine to be called
+  server.on("/gpio/19", handleLEDon10); //as Per  <a href="ledOn">, Subroutine to be called
+  
+ 
+  server.begin();                  //Start server
+  Serial.println("HTTP server started");
 }
+//==============================================================
+//                     LOOP
+//==============================================================
+void loop(){
+  server.handleClient();    //Handle client requests
 
-void loop() {
-
-if(Esp.available())
-    {
-      char Read = Esp.read();
-      Esp.write(Read);
-    }
-    server.handleClient();
-
-
-if(Serial.available())
-    {
-      char Read = Serial.read();
-      Serial.write(Read);
-    }
-    server.handleClient();
-}
-
-void handle_OnConnect() {
-  server.send(200, "text/html", SendHTML()); 
-}
-
-void handle_NotFound(){
-  server.send(404, "text/plain", "Not found");
-}
-
-void handle_4floor() {
-Serial.write('d');
-  server.send(200, "text/html", SendHTML()); 
-}
-
-void handle_3floor() {
-  Serial.write('c');
-  server.send(200, "text/html", SendHTML()); 
-}
-
-void handle_2floor() {
-Serial.write('b');
-  server.send(200, "text/html", SendHTML()); 
-}
-
-void handle_1floor() {
-Serial.write('a');
-  server.send(200, "text/html", SendHTML()); 
-}
-
-String SendHTML(){
-  String ptr = "<!DOCTYPE html> <html>\n";
-  ptr +="<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
-  ptr +="<title>Elevator Web Control</title>\n";
-  ptr +="<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n";
-  ptr +="body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n";
-  ptr +=".button {display: block;width: 80px;background-color: #1abc9c;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n";
-  ptr +=".button-on {background-color: #1abc9c;}\n";
-  ptr +=".button-on:active {background-color: #16a085;}\n";
-  ptr +=".button-off {background-color: #34495e;}\n";
-  ptr +=".button-off:active {background-color: #2c3e50;}\n";
-  ptr +="p {font-size: 14px;color: #888;margin-bottom: 10px;}\n";
-  ptr +="</style>\n";
-  ptr +="</head>\n";
-  ptr +="<body>\n";
-  ptr +="<h1>Elevator Web Control</h1>\n";
-  ptr +="<p>4floor</p><a class=\"button button-off\" href=\"/4floor\">4</a>\n";
-  ptr +="<p>3floor</p><a class=\"button button-off\" href=\"/3floor\">3</a>\n";
-  ptr +="<p>2floor</p><a class=\"button button-off\" href=\"/2floor\">2</a>\n";
-  ptr +="<p>1floor</p><a class=\"button button-off\" href=\"/1floor\">1</a>\n";
-
-  ptr +="</body>\n";
-  ptr +="</html>\n";
-  return ptr;
-}
+  }
